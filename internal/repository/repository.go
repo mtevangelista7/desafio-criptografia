@@ -23,15 +23,23 @@ func CreateDb(db *sql.DB) error {
 	return err
 }
 
-func CreateTransaction(db *sql.DB, transaction models.Transaction) error {
-	insertSQL := `INSERT INTO transactions (userDocument, creditCardToken, value) VALUES (?, ?, ?)`
-	_, err := db.Exec(
+func CreateTransaction(db *sql.DB, transaction models.Transaction) (int64, error) {
+	insertSQL := `INSERT INTO transactions (user_document, credit_card_token, value) VALUES (?, ?, ?)`
+	result, err := db.Exec(
 		insertSQL,
 		transaction.UserDocument,
 		transaction.CreditCradToken,
 		transaction.Value)
+	if err != nil {
+		return 0, err
+	}
 
-	return err
+	lastInsertId, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return lastInsertId, err
 }
 
 func ReadTransaction(db *sql.DB, id int64) (*models.Transaction, error) {
@@ -40,19 +48,19 @@ func ReadTransaction(db *sql.DB, id int64) (*models.Transaction, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer result.Close()
 
 	var transaction models.Transaction
 
-	err = result.Scan(&transaction.Id, &transaction.UserDocument, &transaction.CreditCradToken, &transaction.Value)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
+	if result.Next() {
+		err := result.Scan(&transaction.Id, &transaction.UserDocument, &transaction.CreditCradToken, &transaction.Value)
+		if err != nil {
+			return nil, err
 		}
-
-		return nil, err
+		return &transaction, nil
 	}
 
-	return &transaction, nil
+	return nil, sql.ErrNoRows
 }
 
 func DeleteTransaction(db *sql.DB, id int64) error {

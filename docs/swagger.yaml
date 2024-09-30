@@ -13,35 +13,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /makeTransaction:
-    post:
-      consumes:
-      - application/json
-      description: Create a new transaction
-      parameters:
-      - description: Transaction data
-        in: body
-        name: transaction
-        required: true
-        schema:
-          $ref: '#/definitions/models.Transaction'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Transaction'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Make a transaction
-      tags:
-      - transactions
-  /transaction/{id}:
+  /deleteTransaction/{id}:
     delete:
       consumes:
       - application/json
@@ -74,6 +46,7 @@ paths:
       summary: Delete a transaction by user ID
       tags:
       - transactions
+  /getTransaction/{id}:
     get:
       consumes:
       - application/json
@@ -98,6 +71,34 @@ paths:
               type: string
             type: object
       summary: Get a transaction by user ID
+      tags:
+      - transactions
+  /makeTransaction:
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction
+      parameters:
+      - description: Transaction data
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/models.Transaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Transaction'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Make a transaction
       tags:
       - transactions
 swagger: "2.0"

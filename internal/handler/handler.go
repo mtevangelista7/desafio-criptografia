@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/glebarez/go-sqlite"
 )
 
 const fileName = "sqlite.db"
@@ -39,7 +39,7 @@ func MakeTransaction(c *gin.Context) {
 	sha_512.Write([]byte(newTransaction.UserDocument))
 	newTransaction.UserDocument = hex.EncodeToString(sha_512.Sum(nil))
 
-	db, err := sql.Open("sqlite3", fileName)
+	db, err := sql.Open("sqlite", fileName)
 
 	defer db.Close()
 
@@ -48,7 +48,7 @@ func MakeTransaction(c *gin.Context) {
 		return
 	}
 
-	err = repository.CreateTransaction(db, newTransaction)
+	newTransaction.Id, err = repository.CreateTransaction(db, newTransaction)
 	if err != nil {
 		c.JSON(500, map[string]string{"error": "Transaction creation failed"})
 		return
@@ -65,7 +65,7 @@ func MakeTransaction(c *gin.Context) {
 // @Param id path int64 true "User ID"
 // @Success 200 {object} models.Transaction
 // @Failure 500 {object} map[string]string
-// @Router /transaction/{id} [get]
+// @Router /getTransaction/{id} [get]
 func GetTransaction(c *gin.Context) {
 	userIDStr := c.Param("id")
 	userID, err := strconv.ParseInt(userIDStr, 10, 64)
@@ -74,7 +74,7 @@ func GetTransaction(c *gin.Context) {
 		return
 	}
 
-	db, err := sql.Open("sqlite3", fileName)
+	db, err := sql.Open("sqlite", fileName)
 	defer db.Close()
 	if err != nil {
 		c.JSON(500, map[string]string{"error": "Database connection error"})
@@ -99,7 +99,7 @@ func GetTransaction(c *gin.Context) {
 // @Success 204 {string} string "No Content"
 // @Failure 400 {object} map[string]string "Invalid user ID"
 // @Failure 500 {object} map[string]string "Database error"
-// @Router /transaction/{id} [delete]
+// @Router /deleteTransaction/{id} [delete]
 func DeleteTransaction(c *gin.Context) {
 	userIDStr := c.Param("id")
 	userID, err := strconv.ParseInt(userIDStr, 10, 64)
@@ -108,7 +108,7 @@ func DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	db, err := sql.Open("sqlite3", fileName)
+	db, err := sql.Open("sqlite", fileName)
 	defer db.Close()
 	if err != nil {
 		c.JSON(500, map[string]string{"error": "Database connection error"})
