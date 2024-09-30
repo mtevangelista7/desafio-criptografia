@@ -1,0 +1,104 @@
+definitions:
+  models.Transaction:
+    properties:
+      credit_card_token:
+        type: string
+      id:
+        type: integer
+      user_document:
+        type: string
+      value:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /deleteTransaction/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a transaction using the user ID from the URL
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid user ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Database error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a transaction by user ID
+      tags:
+      - transactions
+  /getTransaction/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a transaction using the user ID from the URL
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Transaction'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a transaction by user ID
+      tags:
+      - transactions
+  /makeTransaction:
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction
+      parameters:
+      - description: Transaction data
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/models.Transaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Transaction'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Make a transaction
+      tags:
+      - transactions
+swagger: "2.0"
